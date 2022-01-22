@@ -43,3 +43,89 @@ questions = [" What's the national flower of Malaysian? \n A.Cherry blossom B.Hi
              " True or false? Batteries convert chemical to electrical energy. \n A.True B.False"]
 
 answers = ['B', 'D', 'C', 'C', 'B', 'A', 'C', 'B', 'A', 'D', 'A', 'C', 'D', 'B', 'A', 'B', 'A']
+
+#class for players and its fucntions
+class Player:
+    def __init__(self, conn, no):
+        self.no = no
+        self.mark = 0
+        self.conn = conn
+
+    def send(self, message):
+        self.conn.send(message.encode('utf-8'))
+
+    def close(self):
+        self.conn.close()
+
+    def listen(self):
+        return self.conn.recv(2048).decode('utf-8')
+
+#class for the quiz and its fucntions
+class Server:
+    def __init__(self):
+        self.list_of_players = []
+        self.current_question = 0
+        self.game_start = False
+        self.buzzer = False
+        self.current_player_buzzed = None
+        self.game_ended = False
+        
+#adding players to game
+    def add_player(self, conn):
+        player = Player(conn, len(self.list_of_players))
+        self.list_of_players.append(player)
+        return player
+
+#calling quiz function to start the game
+    def start_game(self):
+        self.game_start = True
+        self.quiz()
+
+#function to display questions
+    def quiz(self):
+        if not questions:
+            self.broadcast("GAME OVER!!!\n")
+            self.end_quiz()
+            return
+            
+        #question randomizer
+        self.current_question = random.randint(0, len(questions) - 1)
+        if len(questions) != 0:
+            self.broadcast(questions[self.current_question])
+
+#function to request answer from client
+    def send_answer(self, player, message):
+        #for player that pressed buzzer first
+        player_number = str(player.no + 1)
+        if not self.buzzer:
+            self.current_player_buzzed = player
+            self.buzzer = True
+            self.broadcast("Player " + player_number + " pressed the buzzer.")
+            player.send("Enter your answer:")
+            return
+
+        #for player who did not/late pressed the buzzer
+        if self.current_player_buzzed.no != player.no:
+            current = self.current_player_buzzed.no
+            player.send("Player " + str(current + 1) + " pressed the buzzer first!\n\n")
+        #after player submit answer give score or deduct
+        else:
+            self.buzzer = False
+            answer = answers[self.current_question]
+            if answer != message[0].upper():
+                self.broadcast("Player" + player_number + " -1 point!\n\n")
+                player.mark -= 1
+            else:
+                self.broadcast("Player" + player_number + " +1 point!\n\n")
+                player.mark += 1
+
+            #removing answered question with its answer
+            questions.pop(self.current_question)
+            answers.pop(self.current_question)
+
+            #checking score to continue or end game
+            if player.mark >= 5:
+                self.broadcast("CONGRATULATIONS PLAYER " + player_number + " WON!!!")
+                self.end_quiz()
+            else:
+                self.quiz()
