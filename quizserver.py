@@ -167,3 +167,13 @@ def clientthread(conn, addr, player):
                 "4. First to 5 points win. \n \n "
                 "(ENTER TO START)"
     )
+
+        while True: # starts listening
+        message = player.listen()
+        if server_instance.game_ended:
+            return
+
+        if not server_instance.game_start:
+            server_instance.start_game()
+        else:
+            server_instance.send_answer(player, message)
