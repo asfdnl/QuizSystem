@@ -152,3 +152,5 @@ class Server:
         if connection in self.list_of_players:
             self.list_of_players.remove(connection)
 
+
+server_instance = Server()
