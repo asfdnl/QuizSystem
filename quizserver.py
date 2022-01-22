@@ -177,3 +177,21 @@ def clientthread(conn, addr, player):
             server_instance.start_game()
         else:
             server_instance.send_answer(player, message)
+
+#accept connection and reject after game started
+while True:
+    try:
+        conn, addr = server.accept()
+    except OSError:
+        break
+    else:
+        if server_instance.game_start:
+            conn.send("Game already started.".encode('utf-8'))
+            break
+
+        player = server_instance.add_player(conn)
+        print(addr[0] + " connected Player: ", player.no)
+        threading.Thread(target=clientthread, args=(conn, addr, player)).start()
+
+#close connection
+server.close() 
