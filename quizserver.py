@@ -154,3 +154,16 @@ class Server:
 
 
 server_instance = Server()
+
+#thread
+def clientthread(conn, addr, player):
+    #display game intro
+    player.send("You are player {}!".format(player.no + 1))
+    player.send("*************************************************\n Welcome to the Quiz! \n *****************************"
+                "******************** \n INSTRUCTIONS: \n "
+                "1. Press enter to press the buzzer. \n"
+                " 2. Correct answer +1 point  wrong answer -1 point. \n "
+                "3. There are 17 questions. \n "
+                "4. First to 5 points win. \n \n "
+                "(ENTER TO START)"
+    )
