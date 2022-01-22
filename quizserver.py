@@ -129,3 +129,26 @@ class Server:
                 self.end_quiz()
             else:
                 self.quiz()
+#function to end game
+    def end_quiz(self):
+        #display final score
+        for player in self.list_of_players:
+            player.send(" Your Score: " + str(player.mark) + " points.")
+            
+        self.game_ended = True
+        #closing connection
+        server.close()
+
+#function to send message to all clients
+    def broadcast(self, message):
+        for player in self.list_of_players:
+            try:
+                player.send(message)
+            except:
+                player.close()
+                self.remove(player)
+#functions to remove players
+    def remove(self, connection):
+        if connection in self.list_of_players:
+            self.list_of_players.remove(connection)
+
