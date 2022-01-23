@@ -168,7 +168,7 @@ def clientthread(conn, addr, player):
                 "(ENTER TO START)"
     )
 
-        while True: # starts listening
+    while True: # starts listening
         message = player.listen()
         if server_instance.game_ended:
             return
